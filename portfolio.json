@@ -5,6 +5,6 @@
   "tecnologia": "Python, FastAPI, LangGraph, Claude API, SQLite, Jinja2",
   "imagem": "/docs/demo/02-qa-reprova.jpg",
   "gif": "/docs/demo/squad-console.gif",
-  "premio": "3º lugar — Hackathon Reply",
+  "premio": "3º lugar no Hackathon Reply 2026",
   "tags": ["Python", "IA", "Agentes", "LangGraph"]
 }
