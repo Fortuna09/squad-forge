@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% set pagina = "briefing" %}
+{% block titulo %}Novo briefing{% endblock %}
+{% block conteudo %}
+
+<p class="olho">Entrada do squad</p>
+<h1>Briefing do cliente</h1>
+<p class="sub">Este é o único ponto em que um humano toca o problema. Cole o texto como
+ele chegou — e-mail, ata de reunião, PDF copiado. Qualquer setor. O PO Agent interpreta,
+define as telas, e o Dev Agent escreve os arquivos.</p>
+
+{% if not chave_ok %}
+<div class="aviso"><b>Sem ANTHROPIC_API_KEY.</b> Defina a chave no <span class="mono">.env</span>
+ou rode com <span class="mono">SQUAD_MODE=mock</span> para executar offline.</div>
+{% endif %}
+
+<div class="ficha">
+  <p class="olho">Exemplos — setores diferentes, mesmo squad</p>
+  <div class="acionar" style="margin-bottom:6px">
+    {% for k, e in exemplos.items() %}
+    <a class="btn btn-linha btn-sec {{ 'on' if k == escolhido }}" style="text-decoration:none"
+       href="/briefing?exemplo={{ k }}">{{ e.rotulo }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<form method="post" action="/briefing">
+  <div class="ficha">
+    <div class="campo">
+      <label for="nome">Nome do projeto</label>
+      <p class="ajuda">Opcional. Se ficar vazio, o PO Agent nomeia a partir do briefing.</p>
+      <input id="nome" name="nome" placeholder="Perdas de linha — Tubos Meridiano">
+    </div>
+    <div class="campo">
+      <label for="briefing">Briefing</label>
+      <p class="ajuda">Quanto mais concreto — números, regras, restrições, quem usa —
+      melhores as telas. O PO Agent extrai fórmulas e vocabulário daqui.</p>
+      <textarea id="briefing" name="briefing" rows="20" required
+                placeholder="Empresa, problema, o que o cliente precisa, restrições…">{{ texto }}</textarea>
+    </div>
+    <button class="btn" type="submit">Acionar o squad</button>
+    <p class="ev-msg" style="color:var(--grafite);margin:12px 0 0">
+      modo: <span class="mono">{{ modo }}</span> · modelo: <span class="mono">{{ modelo }}</span>
+      · o squad escreve 1 arquivo por tela e o QA testa cada um antes de liberar</p>
+  </div>
+</form>
+{% endblock %}

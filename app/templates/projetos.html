@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% set pagina = "projetos" %}
+{% block titulo %}Projetos{% endblock %}
+{% block conteudo %}
+
+<p class="olho">Um briefing · um squad · uma aplicação entregue</p>
+<h1>Projetos</h1>
+<p class="sub">Cada projeto começou como texto bruto de cliente. O squad leu, quebrou em
+telas, escreveu os arquivos e testou. As páginas abaixo não existiam antes da execução.</p>
+
+<div class="ficha acionar" style="align-items:center">
+  <div style="flex:1">
+    <b>Entregar para um cliente novo</b>
+    <p class="ev-msg" style="color:var(--grafite);margin:2px 0 0">
+      Cole o briefing — de qualquer setor — e o squad constrói a aplicação.</p>
+  </div>
+  <a class="btn btn-linha" style="text-decoration:none;display:inline-block" href="/briefing">
+    Novo briefing</a>
+</div>
+
+{% for p in projetos %}
+<div class="ficha">
+  <div class="ficha-topo">
+    <div>
+      <h2 style="margin:0">{{ p.nome }}</h2>
+      <p class="ev-msg" style="color:var(--grafite);margin:2px 0 0">
+        {{ p.cliente }}{% if p.resumo %} · {{ p.resumo }}{% endif %}</p>
+    </div>
+    <div class="carimbo">Status<b>{{ p.status }}</b>{{ p.criado_em[:10] }}</div>
+  </div>
+
+  <div class="pares" style="margin-bottom:14px">
+    <div class="par"><dt>Telas geradas</dt><dd class="num">{{ p.telas|length }}</dd></div>
+    <div class="par"><dt>Registros na aplicação</dt><dd class="num">{{ p.registros }}</dd></div>
+    <div class="par"><dt>Identificador</dt><dd class="mono">{{ p.slug }}</dd></div>
+  </div>
+
+  <div class="acionar">
+    {% if p.telas %}
+    <a class="btn btn-linha" style="text-decoration:none" href="/app/{{ p.slug }}">Abrir aplicação</a>
+    {% endif %}
+    <a class="btn btn-linha btn-sec" style="text-decoration:none" href="/projeto/{{ p.slug }}">Detalhes</a>
+    <a class="btn btn-linha btn-sec" style="text-decoration:none" href="/squad?run={{ p.run_id }}">Ver o squad trabalhando</a>
+  </div>
+</div>
+{% else %}
+<div class="vazio">
+  <p>Nenhum projeto ainda.</p>
+  <p>Comece por <a href="/briefing">Novo briefing</a> — há dois exemplos prontos de setores
+  diferentes para você comparar o que o squad produz.</p>
+</div>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ p.nome }} — {{ atual.nome }}</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="modo-app">
+<header class="topo topo-cliente">
+  <div class="topo-in">
+    <div class="marca">{{ p.nome }}<span>{{ p.cliente }}</span></div>
+    <nav class="nav">
+      {% for t in telas %}
+      <a href="/app/{{ p.slug }}/{{ t.slug }}" class="{{ 'on' if t.slug == atual.slug }}">{{ t.nome }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+</header>
+
+<div class="barra-entrega">
+  <span class="mono">tela gerada pelo Dev Agent · {{ atual.slug }}.html
+    {%- if atual.rework %} · {{ atual.rework }} retrabalho(s) do QA{% endif %}</span>
+  <span class="tag t-{{ 'passou' if atual.status == 'Aprovada' else ('falhou' if atual.status == 'Bloqueada' else 'em') }}">{{ atual.status }}</span>
+  <span class="espaco"></span>
+  <a href="/codigo/{{ p.slug }}/{{ atual.slug }}" target="_blank">ver o código</a>
+  <a href="/projeto/{{ p.slug }}">detalhes do projeto</a>
+  <a href="/">← workbench</a>
+</div>
+
+{% if pronta %}
+<div class="palco">
+  <div class="palco-controle">
+    <button type="button" class="chip on" data-largura="100%">Desktop</button>
+    <button type="button" class="chip" data-largura="390px">Celular</button>
+  </div>
+  <iframe id="tela" src="/raw/{{ p.slug }}/{{ atual.slug }}" title="{{ atual.nome }}"></iframe>
+</div>
+<script>
+document.querySelectorAll('.chip').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    document.getElementById('tela').style.maxWidth = b.dataset.largura;
+  });
+});
+</script>
+{% else %}
+<main><div class="vazio">
+  <p>Esta tela ainda não foi gerada.</p>
+  <p>Acompanhe a execução em <a href="/squad?run={{ p.run_id }}">Console do squad</a>.</p>
+</div></main>
+{% endif %}
+</body>
+</html>

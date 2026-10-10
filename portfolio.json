@@ -1,0 +1,10 @@
+{
+  "titulo": "Squad Forge - Orquestração de Agentes de IA",
+  "objetivo": "Squad de três agentes de IA (PO, Dev e QA) orquestrados com LangGraph que recebe o briefing bruto de um cliente, decide quais telas a aplicação precisa, escreve cada uma em HTML, CSS e JavaScript e só libera depois do QA — briefings diferentes geram aplicações diferentes.",
+  "desafio": "Tornar o QA confiável: antes de o agente opinar, 12 verificações automáticas em Python inspecionam o arquivo entregue e qualquer falha força a reprovação; a tela volta ao Dev com as pendências, e toda a troca entre agentes fica registrada numa trilha de auditoria.",
+  "tecnologia": "Python, FastAPI, LangGraph, Claude API, SQLite, Jinja2",
+  "imagem": "/docs/demo/02-qa-reprova.jpg",
+  "gif": "/docs/demo/squad-console.gif",
+  "premio": "3º lugar — Hackathon Reply",
+  "tags": ["Python", "IA", "Agentes", "LangGraph"]
+}

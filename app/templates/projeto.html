@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% set pagina = "projetos" %}
+{% block titulo %}{{ p.nome }}{% endblock %}
+{% block conteudo %}
+
+<p class="olho">{{ p.cliente }}</p>
+<h1>{{ p.nome }}</h1>
+<p class="sub">{{ p.resumo }}</p>
+
+<div class="kpis">
+  <div class="kpi"><b class="num">{{ telas|length }}</b><span>Telas geradas</span></div>
+  <div class="kpi"><b class="num">{{ stories|length }}</b><span>Stories do PO</span></div>
+  <div class="kpi"><b class="num">{{ decisoes }}</b><span>Decisões do Dev</span></div>
+  <div class="kpi"><b class="num">{{ passou }}/{{ total_testes }}</b><span>Casos de QA</span></div>
+  <div class="kpi"><b class="num">{{ registros|length }}</b><span>Registros gravados</span></div>
+</div>
+
+<div class="acionar" style="margin-bottom:20px">
+  <a class="btn btn-linha" style="text-decoration:none" href="/app/{{ p.slug }}">Abrir aplicação</a>
+  <a class="btn btn-linha btn-sec" style="text-decoration:none" href="/squad?run={{ p.run_id }}">Console do squad</a>
+  <a class="btn btn-linha btn-sec" style="text-decoration:none" href="/artefatos/{{ p.slug }}">Backlog · decisões · QA</a>
+</div>
+
+<div class="grade g-lateral">
+  <div>
+    <div class="ficha">
+      <h2>Telas entregues</h2>
+      <table>
+        <thead><tr><th>Tela</th><th>Tipo</th><th>Arquivo</th><th>QA</th></tr></thead>
+        <tbody>
+        {% for t in telas %}
+          <tr>
+            <td><a href="/app/{{ p.slug }}/{{ t.slug }}">{{ t.nome }}</a><br>
+              <span class="ev-msg">{{ t.objetivo }}</span></td>
+            <td class="mono">{{ t.tipo }}</td>
+            <td class="mono">{% if t.existe %}{{ t.slug }}.html<br>
+              <span class="ev-msg">{{ t.tamanho }} bytes</span>{% else %}—{% endif %}</td>
+            <td><span class="tag t-{{ 'passou' if t.status == 'Aprovada' else ('falhou' if t.status == 'Bloqueada' else 'em') }}">{{ t.status }}</span>
+              {% if t.rework %}<br><span class="ev-msg">{{ t.rework }} retrabalho(s)</span>{% endif %}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ficha">
+      <h2>Dados gravados pela aplicação</h2>
+      <p class="ev-msg" style="color:var(--grafite);margin-top:-8px">
+        Registros criados pelas telas geradas, via API de armazenamento.</p>
+      <table>
+        <thead><tr><th>Coleção</th><th>Conteúdo</th><th>Quando</th><th>Evidência</th></tr></thead>
+        <tbody>
+        {% for r in registros %}
+          <tr><td class="mono">{{ r.tipo }}</td>
+              <td class="ev-msg">{{ r.dados|tojson|truncate(120) }}</td>
+              <td class="mono">{{ r.criado_em[11:] }}</td>
+              <td class="mono">{{ r.hash }}</td></tr>
+        {% else %}
+          <tr><td colspan="4" class="ev-msg">Nenhum registro ainda. Abra a aplicação e use uma tela.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <div class="ficha">
+      <h2>Domínio extraído do briefing</h2>
+      {% if p.dominio and p.dominio.vocabulario %}
+      <p class="olho">Vocabulário do cliente</p>
+      <p class="ev-msg" style="color:var(--tinta)">{{ p.dominio.vocabulario|join(' · ') }}</p>
+      {% endif %}
+      {% if p.dominio and p.dominio.regras %}
+      <p class="olho" style="margin-top:14px">Regras de negócio</p>
+      <ul style="padding-left:18px;font-size:13.5px">
+        {% for r in p.dominio.regras %}<li>{{ r }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+      {% if p.dominio and p.dominio.entidades %}
+      <p class="olho" style="margin-top:14px">Entidades</p>
+      {% for e in p.dominio.entidades %}
+      <p style="margin:0 0 8px;font-size:13.5px"><b>{{ e.nome }}</b>
+        <span class="mono" style="font-size:11px">{{ e.colecao }}</span><br>
+        <span class="ev-msg">{{ e.campos|join(', ') }}</span></p>
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    <div class="ficha">
+      <h2>Briefing recebido</h2>
+      <pre class="briefing-fonte">{{ p.briefing }}</pre>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% set destaque = 'destaque' if e.tipo in ('veredito','loop','retrabalho') else ('falha' if e.tipo in ('bloqueio','erro') else ('ok' if e.tipo == 'fim' else '')) %}
+{% if e.tipo in ('teste','veredito') %}{% set destaque = 'falha' if ('FALHOU' in e.titulo or 'REPROVADO' in e.titulo) else 'ok' %}{% endif %}
+<div class="ev {{ destaque }}">
+  <div class="ev-quem q-{{ e.agente }}">{{ e.agente }}<span class="ev-tipo">{{ e.ts[11:] }}</span></div>
+  <div>
+    <span class="ev-tipo">{{ e.tipo }}{% if e.tokens_out %} · {{ e.tokens_in }}/{{ e.tokens_out }} tok{% endif %}</span>
+    <div class="ev-tit">{{ e.titulo }}</div>
+    {% if e.mensagem %}<div class="ev-msg">{{ e.mensagem }}</div>{% endif %}
+    {% if e.payload %}
+    <div class="ev-extra">
+      {% for c in e.payload.get('criterios_aceite', []) %}<div>◻ {{ c }}</div>{% endfor %}
+      {% for c in e.payload.get('entidades', []) %}<div>· {{ c }}</div>{% endfor %}
+      {% for c in e.payload.get('regras', []) %}<div>ƒ {{ c }}</div>{% endfor %}
+      {% for c in e.payload.get('verificacoes', []) %}<div>{{ c }}</div>{% endfor %}
+      {% if e.payload.get('vocabulario') %}<div>vocabulário: {{ e.payload.vocabulario|join(', ') }}</div>{% endif %}
+      {% if e.payload.get('tela') %}<div>tela: {{ e.payload.tela }}</div>{% endif %}
+      {% if e.payload.get('alternativas_descartadas') %}<div>descartado: {{ e.payload.alternativas_descartadas }}</div>{% endif %}
+      {% if e.payload.get('impacto') %}<div>impacto: {{ e.payload.impacto }}</div>{% endif %}
+      {% if e.payload.get('esperado') %}<div>esperado: {{ e.payload.esperado }}</div>{% endif %}
+      {% if e.payload.get('obtido') %}<div>obtido: {{ e.payload.obtido }}</div>{% endif %}
+      {% if e.payload.get('evidencia') %}<div>evidência: {{ e.payload.evidencia }}</div>{% endif %}
+      {% for pnd in e.payload.get('pendencias', []) %}<div>pendência: {{ pnd }}</div>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>

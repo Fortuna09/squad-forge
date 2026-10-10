@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% set pagina = "squad" %}
+{% block titulo %}Console do squad{% endblock %}
+{% block conteudo %}
+
+<p class="olho">PO Agent · Dev Agent · QA Agent</p>
+<h1>Console do squad</h1>
+<p class="sub">O time humano entrega o briefing e sai. Cada mensagem trocada entre os
+agentes é gravada antes de aparecer aqui — o que você vê é a trilha de auditoria.</p>
+
+{% if runs %}
+<div class="abas">
+  {% for r in runs[:5] %}
+  <a href="/squad?run={{ r.run_id }}" class="{{ 'on' if r.run_id == run_id }}">
+    {{ r.projeto_nome or r.projeto_slug }}<br>
+    <span class="mono" style="font-size:10px">{{ r.status }}</span></a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if run_id %}
+<div class="ficha">
+  <div class="ficha-topo">
+    <div>
+      <h2 style="margin:0" id="cabecalho">
+        {% if atual and atual.status == 'Executando' %}<span class="pulsando"></span>{% endif %}
+        {{ atual.status if atual else 'Aguardando' }}
+      </h2>
+      <p class="mono" style="font-size:11px;color:var(--grafite);margin:2px 0 0">
+        run {{ run_id }} · modo {{ modo }} · {{ modelo }}</p>
+    </div>
+    <div class="acionar">
+      {% if p %}
+      <a class="btn btn-linha" style="text-decoration:none" href="/app/{{ p.slug }}">Abrir aplicação</a>
+      <a class="btn btn-linha btn-sec" style="text-decoration:none" href="/artefatos/{{ p.slug }}">Artefatos</a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="console" id="console">
+    {% for e in eventos %}{% include "_evento.html" %}{% endfor %}
+  </div>
+</div>
+
+<script>
+(function () {
+  const box = document.getElementById('console');
+  const cabecalho = document.getElementById('cabecalho');
+  const runId = {{ run_id|tojson }};
+  let ultimo = {{ eventos[-1].id if eventos else 0 }};
+  const CLASSES = { veredito:'destaque', loop:'destaque', retrabalho:'destaque',
+                    bloqueio:'falha', erro:'falha', fim:'ok' };
+
+  function texto(v){ const d = document.createElement('div'); d.textContent = v; return d.innerHTML; }
+
+  function render(e){
+    const div = document.createElement('div');
+    let cls = 'ev ' + (CLASSES[e.tipo] || '');
+    if (e.tipo === 'teste') cls += e.titulo.includes('FALHOU') ? ' falha' : ' ok';
+    if (e.tipo === 'veredito') cls += e.titulo.includes('REPROVADO') ? ' falha' : ' ok';
+    div.className = cls.trim();
+
+    let extra = '';
+    if (e.payload) {
+      const p = e.payload, linhas = [];
+      (p.criterios_aceite || []).forEach(c => linhas.push('◻ ' + c));
+      (p.entidades || []).forEach(c => linhas.push('· ' + c));
+      (p.regras || []).forEach(c => linhas.push('ƒ ' + c));
+      (p.verificacoes || []).forEach(c => linhas.push(c));
+      if (p.vocabulario && p.vocabulario.length) linhas.push('vocabulário: ' + p.vocabulario.join(', '));
+      if (p.tela) linhas.push('tela: ' + p.tela);
+      if (p.alternativas_descartadas) linhas.push('descartado: ' + p.alternativas_descartadas);
+      if (p.impacto) linhas.push('impacto: ' + p.impacto);
+      if (p.esperado) linhas.push('esperado: ' + p.esperado);
+      if (p.obtido) linhas.push('obtido: ' + p.obtido);
+      if (p.evidencia) linhas.push('evidência: ' + p.evidencia);
+      (p.pendencias || []).forEach(x => linhas.push('pendência: ' + x));
+      if (linhas.length) extra = '<div class="ev-extra">' +
+        linhas.map(l => '<div>' + texto(l) + '</div>').join('') + '</div>';
+    }
+    const tok = (e.tokens_out > 0) ? ' · ' + e.tokens_in + '/' + e.tokens_out + ' tok' : '';
+    div.innerHTML =
+      '<div class="ev-quem q-' + e.agente + '">' + texto(e.agente) +
+      '<span class="ev-tipo">' + texto(e.ts.slice(11)) + '</span></div>' +
+      '<div><span class="ev-tipo">' + texto(e.tipo + tok) + '</span>' +
+      '<div class="ev-tit">' + texto(e.titulo) + '</div>' +
+      (e.mensagem ? '<div class="ev-msg">' + texto(e.mensagem) + '</div>' : '') +
+      extra + '</div>';
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  const es = new EventSource('/squad/stream/' + encodeURIComponent(runId) + '?desde=' + ultimo);
+  es.onmessage = ev => render(JSON.parse(ev.data));
+  es.addEventListener('fim', () => { es.close(); cabecalho.textContent = 'Concluído';
+    setTimeout(() => window.location.reload(), 1200); });
+  es.onerror = () => es.close();
+  box.scrollTop = box.scrollHeight;
+})();
+</script>
+{% else %}
+<div class="vazio">Nenhuma execução ainda. Comece por <a href="/briefing">Novo briefing</a>.</div>
+{% endif %}
+{% endblock %}

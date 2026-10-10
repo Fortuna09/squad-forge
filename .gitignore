@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+forge.db
+forge.db-wal
+forge.db-shm
+gerados/
+venv/
+.venv/

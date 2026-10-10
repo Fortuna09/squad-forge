@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% set pagina = "projetos" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block conteudo %}
+
+<p class="olho">{{ p.cliente if p else slug }} · entregáveis do squad</p>
+<h1>{{ titulo }}</h1>
+<p class="sub">Escrito pelos próprios agentes em
+<span class="mono">gerados/{{ slug }}/artefatos/{{ nome }}</span>.</p>
+
+<div class="abas">
+  {% for k, (arq, tit) in arquivos.items() %}
+  <a href="/artefatos/{{ slug }}/{{ k }}" class="{{ 'on' if k == qual }}">{{ tit }}</a>
+  {% endfor %}
+</div>
+
+{% if conteudo %}
+<div class="doc">{{ conteudo|safe }}</div>
+{% else %}
+<div class="vazio">
+  <p><span class="mono">{{ nome }}</span> ainda não existe.</p>
+  <p>Os artefatos são gravados quando o squad conclui o ciclo.
+  {% if p %}Acompanhe em <a href="/squad?run={{ p.run_id }}">Console do squad</a>.{% endif %}</p>
+</div>
+{% endif %}
+{% endblock %}
